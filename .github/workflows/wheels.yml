@@ -2,17 +2,10 @@
 name: Wheel builder
 
 on:
-  schedule:
-    # Nightly build at 3:42 A.M.
-    - cron: "42 3 */1 * *"
   push:
     branches:
       - master
       # Release branches
-      - "[0-9]+.[0-9]+.X"
-  pull_request:
-    branches:
-      - master
       - "[0-9]+.[0-9]+.X"
 
 env:
