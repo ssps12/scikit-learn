@@ -18,5 +18,8 @@ fi
 # in the pyproject.toml file, while the tests are run
 # against the most recent version of the dependencies
 
+which python3
+ls
+apt-get install -y python3-pip
 python -m pip install cibuildwheel
 python -m cibuildwheel --output-dir wheelhouse
