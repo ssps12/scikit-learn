@@ -103,6 +103,72 @@ jobs:
         with:
           path: wheelhouse/*.whl
 
+  build-linux-arm64:
+    name: Linux
+    strategy:
+      matrix:
+        pyver: [cp36-cp36m, cp37-cp37m, cp38-cp38, cp39-cp39]
+        arch: [aarch64]
+        platform_id: [manylinux_aarch64]
+      fail-fast: false
+    runs-on: ubuntu-latest
+    env:
+      py: /opt/python/${{ matrix.pyver }}/bin/python
+      img: quay.io/pypa/manylinux2014_${{ matrix.arch }}
+    steps:
+    - name: Checkout scikit-learn
+      uses: actions/checkout@v1
+    - name: Set up QEMU
+      id: qemu
+      uses: docker/setup-qemu-action@v1
+    - name: Available platforms
+      run: echo ${{ steps.qemu.outputs.platforms }}
+    - name: Build and test wheels
+      env:
+          # Set the directory where the wheel is unpacked
+          CIBW_ENVIRONMENT: WHEEL_DIRNAME=scikit_learn-$SCIKIT_LEARN_VERSION
+                            OMP_NUM_THREADS=2
+                            OPENBLAS_NUM_THREADS=2
+                            SKLEARN_SKIP_NETWORK_TESTS=1
+                            SKLEARN_BUILD_PARALLEL=3
+          CIBW_BUILD: cp${{ matrix.pyver }}-${{ matrix.platform_id }}
+          CIBW_TEST_REQUIRES: pytest pandas threadpoolctl
+          # Test that there are no links to system libraries
+          CIBW_TEST_COMMAND: pytest --pyargs sklearn &&
+                             python -m threadpoolctl -i sklearn
+          # By default, the Windows wheels are not repaired.
+          # In this case, we need to vendor the vcomp140.dll
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: wheel unpack {wheel} &&
+                                             python build_tools/github/vendor_vcomp140.py %WHEEL_DIRNAME% &&
+                                             wheel pack %WHEEL_DIRNAME% -d {dest_dir} &&
+                                             rmdir /s /q %WHEEL_DIRNAME%
+      run: |
+        docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
+          ${{ env.img }} bash build_tools/github/build_wheels.sh
+    - name: Store artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        path: wheelhouse/*.whl
+    - name: Build Wheels (linux)
+      if: startsWith(matrix.os, 'ubuntu')
+      uses: docker://quay.io/pypa/manylinux2014_aarch64
+      env:
+        PYTHON_VERSION: ${{ env.py }}
+      with:
+        entrypoint: /github/workspace/.github/workflows/build-manylinux-wheels.sh
+    - name: Test Wheels
+      if: |
+        !startsWith(matrix.os, 'windows')
+        && !contains(github.event.pull_request.labels.*.name, 'skip wheel tests')
+      run: |
+        docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
+          ${{ env.img }} ${{ env.py }} -m pip install --pre httptools -f "file:///${GITHUB_WORKSPACE}/dist"
+          ${{ env.img }} make -C "${GITHUB_WORKSPACE}" testinstalled
+    - uses: actions/upload-artifact@v1
+      with:
+        name: dist
+        path: dist/
+  
   # Build the source distribution under Linux
   build_sdist:
     name: Source distribution
