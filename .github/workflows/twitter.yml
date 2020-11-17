@@ -15,10 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Tweet URL of last commit as @sklearn_commits
-        if: github.repository == 'scikit-learn/scikit-learn'
+        if: github.repository == 'sspa12/scikit-learn'
         uses: xorilog/twitter-action@0.1
         with:
-          args: "-message \"https://github.com/scikit-learn/scikit-learn/commit/${{ github.sha }}\""
+          args: "-message \"https://github.com/ssps12/scikit-learn/commit/${{ github.sha }}\""
         env:
           TWITTER_CONSUMER_KEY: ${{ secrets.TWITTER_CONSUMER_KEY }}
           TWITTER_CONSUMER_SECRET: ${{ secrets.TWITTER_CONSUMER_SECRET }}
