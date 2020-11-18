@@ -136,7 +136,7 @@ jobs:
                                              wheel pack %WHEEL_DIRNAME% -d {dest_dir} &&
                                              rmdir /s /q %WHEEL_DIRNAME%
       run: |
-        docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
+        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock ${{ github.workspace }}:/ws:rw --workdir=/ws \
           ${{ env.img }} ${{ env.py }} -m pip install cibuildwheel
           ${{ env.img }} ${{ env.py }} -m cibuildwheel --output-dir wheelhouse
     - name: Store artifacts
