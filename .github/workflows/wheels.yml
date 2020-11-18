@@ -140,7 +140,7 @@ jobs:
           ${{ env.img }} \ 
           bash -exc '\
           ${{ env.py }} -m pip install cibuildwheel
-          ${{ env.img }} ${{ env.py }} -m cibuildwheel --output-dir wheelhouse
+          ${{ env.py }} -m cibuildwheel --output-dir wheelhouse
     - name: Store artifacts
       uses: actions/upload-artifact@v2
       with:
