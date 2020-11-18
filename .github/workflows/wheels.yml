@@ -139,8 +139,8 @@ jobs:
         docker run --rm -v '${{ github.workspace }}:/ws:rw' -v '/var/run/docker.sock:/var/run/docker.sock' --workdir=/ws \
           ${{ env.img }} \ 
           bash -exc '\
-          ${{ env.py }} -m pip install cibuildwheel \
-          ${{ env.py }} -m cibuildwheel --output-dir wheelhouse \
+            ${{ env.py }} -m pip install cibuildwheel \
+            ${{ env.py }} -m cibuildwheel --output-dir wheelhouse \
     - name: Store artifacts
       uses: actions/upload-artifact@v2
       with:
