@@ -137,7 +137,11 @@ jobs:
                                              rmdir /s /q %WHEEL_DIRNAME%
       run: |
         docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
-          ${{ env.img }} bash build_tools/github/build_wheels.sh
+          ${{ env.img }} ${{ env.py }} -m pip install cibuildwheel
+    - name: after install
+      run: |
+        docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
+          ${{ env.img }} ${{ env.py }} -m cibuildwheel --output-dir wheelhouse
     - name: Store artifacts
       uses: actions/upload-artifact@v2
       with:
