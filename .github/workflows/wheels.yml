@@ -135,7 +135,6 @@ jobs:
                                              python build_tools/github/vendor_vcomp140.py %WHEEL_DIRNAME% &&
                                              wheel pack %WHEEL_DIRNAME% -d {dest_dir} &&
                                              rmdir /s /q %WHEEL_DIRNAME%
-    - name: install depends
       run: docker run --rm -v '${{ github.workspace }}:/ws:rw' -v '/var/run/docker.sock:/var/run/docker.sock' --workdir=/ws \
              ${{ env.img }} ${{ env.py }} -m pip install cibuildwheel
     - name: Store artifacts
